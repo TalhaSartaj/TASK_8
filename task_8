@@ -1,0 +1,92 @@
+# Constants
+NUM_BOATS = 10
+HOURLY_RATE = 20
+HALF_HOUR_RATE = 12
+OPENING_HOUR = 10
+CLOSING_HOUR = 17
+
+# Initialize data for each boat
+boat_data = [{'hours_hired': 0, 'return_time': OPENING_HOUR} for _ in range(NUM_BOATS)]
+
+# Function to calculate money taken for one boat in a day
+def calculate_daily_profit(boat_number):
+    # Prompt user for input
+    print(f"\nBoat {boat_number}:")
+    start_hour = int(input("Enter the start hour of hire (between 10 and 17): "))
+    hire_duration = float(input("Enter the hire duration (0.5 or 1 hour): "))
+
+    # Validate input
+    if start_hour < OPENING_HOUR or start_hour + hire_duration > CLOSING_HOUR:
+        print("Error: Invalid hire time. Boats can only be hired between 10:00 and 17:00.")
+        return 0
+
+    # Calculate payment
+    if hire_duration == 0.5:
+        payment = HALF_HOUR_RATE
+    elif hire_duration == 1:
+        payment = HOURLY_RATE
+    else:
+        print("Error: Invalid hire duration. Please choose 0.5 or 1 hour.")
+        return 0
+
+    # Update boat data
+    boat_data[boat_number - 1]['hours_hired'] += hire_duration
+    boat_data[boat_number - 1]['return_time'] = start_hour + hire_duration
+
+    # Output information
+    print(f"Time of hire: {start_hour}:00")
+    print(f"Hire duration: {hire_duration} hour(s)")
+    print(f"Payment: ${payment}")
+
+    return payment
+
+# Function to find the next available boat
+def find_next_available_boat():
+    current_time = int(input("Enter the current time: "))
+
+    earliest_return_time = CLOSING_HOUR
+    available_boats = []
+
+    for boat_number, data in enumerate(boat_data, start=1):
+        if data['return_time'] <= current_time:
+            available_boats.append(boat_number)
+        elif data['return_time'] < earliest_return_time:
+            earliest_return_time = data['return_time']
+
+    if not available_boats:
+        print("No boats available. The earliest available time is:", earliest_return_time)
+    else:
+        print("Available boats:", available_boats)
+
+# Function to calculate money taken for all boats at the end of the day
+def calculate_total_daily_profit():
+    total_money_taken = 0
+    total_hours_hired = 0
+    boats_not_used = 0
+    max_hours_hired = 0
+    most_used_boat = 0
+
+    for boat_number, data in enumerate(boat_data, start=1):
+        total_money_taken += data['hours_hired'] * (HOURLY_RATE if data['hours_hired'] >= 1 else HALF_HOUR_RATE)
+        total_hours_hired += data['hours_hired']
+
+        if data['hours_hired'] == 0:
+            boats_not_used += 1
+
+        if data['hours_hired'] > max_hours_hired:
+            max_hours_hired = data['hours_hired']
+            most_used_boat = boat_number
+
+    print("\nEnd of Day Report:")
+    print("Total Money Taken for the Day:", total_money_taken)
+    print("Total Hours Boats Were Hired:", total_hours_hired)
+    print("Number of Boats Not Used:", boats_not_used)
+    print("Boat Used the Most:", most_used_boat, "(Hours Hired:", max_hours_hired, "hours)")
+
+# Test the program
+for boat in range(1, NUM_BOATS + 1):
+    calculate_daily_profit(boat)
+
+find_next_available_boat()
+calculate_total_daily_profit()
+
